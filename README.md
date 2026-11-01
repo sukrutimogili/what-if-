@@ -46,3 +46,4 @@ Phone emulator: `flutter emulators --launch <id>` then `flutter run`.
 * Responses: SQLite file `what_if_journal.db` in the app support directory
 * Prompts: read-only JSON asset, loaded once at start-up
 # what-if-
+# what-if-
