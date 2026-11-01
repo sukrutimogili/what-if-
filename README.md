@@ -1,49 +1,48 @@
-# What If? – A Creative Prompt Generator
+# What If? ✨
 
-Flutter app (mobile, tablet, laptop/desktop) using the bundled
-`assets/data/what_if_prompts.json` (1,000 prompts, 5 categories).
+A little Flutter app for curious minds. Ask "what if?" and see where your mind wanders.
 
-## Ubuntu setup
+1,000 prompts across 5 categories, a daily challenge, and a private journal for your answers.
+
+## What you can do
+
+- **Discover:** a featured prompt, today's daily challenge, and category shortcuts
+- **Explore:** browse each category 10 prompts at a time, or search all prompts
+- **Surprise me:** a random prompt from the whole collection, any time
+- **Saved:** bookmark the prompts you love
+- **My Journey:** write responses and keep them in a local journal
+
+Works on phones, tablets and desktop. The layout adapts to the screen size.
+
+## Run it
 
 ```bash
-# 1. System packages for Linux desktop builds + SQLite
-sudo apt update
-sudo apt install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsqlite3-dev
-
-# 2. Check Flutter / Dart
-flutter --version && dart --version
-flutter doctor
-
-# 3. From the folder that contains this README: generate the platform folders
-#    (linux/, android/, ...). Existing lib/, pubspec.yaml and assets are kept.
-flutter create --platforms=linux,android .
-
-# 4. Dependencies, checks, run
 flutter pub get
-flutter analyze
-flutter test
 flutter run -d linux
 ```
 
-If `flutter` is not found, install it first:
-https://docs.flutter.dev/get-started/install/linux
+First time on Linux? Install the build tools once:
 
-## Trying different screen sizes
+```bash
+sudo apt install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsqlite3-dev
+```
 
-Run on Linux and drag the window edge:
+Before sharing changes:
 
-| Width        | Layout                                             |
-|--------------|----------------------------------------------------|
-| < 700 px     | Phone: bottom navigation pill, single column       |
-| 700–1100 px  | Tablet: icon sidebar, 2-column lists               |
-| ≥ 1100 px    | Laptop: labelled sidebar, centred content, 3 cols  |
+```bash
+flutter analyze
+flutter test test/prompt_batcher_test.dart
+```
 
-Phone emulator: `flutter emulators --launch <id>` then `flutter run`.
 
-## Where things are stored
+## Under the hood
 
-* Bookmarks: SharedPreferences (key `saved_prompt_ids`)
-* Responses: SQLite file `what_if_journal.db` in the app support directory
-* Prompts: read-only JSON asset, loaded once at start-up
-# what-if-
-# what-if-
+| Folder | What's inside |
+| --- | --- |
+| `lib/screens/` | Discover, Explore, Surprise, Saved, Journey and detail screens |
+| `lib/widgets/` | Reusable pieces such as prompt tiles, pill buttons and icons |
+| `lib/state/` | App state: bookmarks, journal entries, current tab |
+| `lib/services/` | Prompt loading, bookmarks (shared_preferences), journal (SQLite) |
+| `assets/data/` | `what_if_prompts.json`, the prompt collection |
+
+Your saved prompts and responses stay on your device.
