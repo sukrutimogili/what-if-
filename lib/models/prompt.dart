@@ -9,6 +9,8 @@ class PromptCategory {
 
   final String id;
   final String name;
+  /// Legacy value from the JSON file. The UI no longer renders it; see
+  /// `CategoryIcon`, which maps [id] to an SVG asset instead.
   final String icon;
   final String description;
 
@@ -16,7 +18,7 @@ class PromptCategory {
     return PromptCategory(
       id: json['id'] as String,
       name: json['name'] as String,
-      icon: (json['icon'] as String?) ?? '✨',
+      icon: (json['icon'] as String?) ?? '',
       description: (json['description'] as String?) ?? '',
     );
   }

@@ -35,8 +35,15 @@ class AppTheme {
     }
   }
 
+  /// Display typeface: page headings, section titles, prompt text, buttons.
+  static const String displayFont = 'Outfit';
+
+  /// Text typeface: body copy, descriptions, labels and metadata.
+  static const String textFont = 'Inter';
+
   /// Heavy, tightly tracked headline (e.g. "Activities").
   static TextStyle display(double size) => TextStyle(
+        fontFamily: displayFont,
         fontSize: size,
         fontWeight: FontWeight.w800,
         height: 1.08,
@@ -45,7 +52,9 @@ class AppTheme {
       );
 
   /// Light italic companion (e.g. "just for your taste").
+  /// Outfit has no italic cut, so Flutter slants the light weight.
   static TextStyle displayItalic(double size) => TextStyle(
+        fontFamily: displayFont,
         fontSize: size,
         fontWeight: FontWeight.w300,
         fontStyle: FontStyle.italic,
@@ -54,7 +63,18 @@ class AppTheme {
         color: AppColors.ink,
       );
 
+  /// Prompt titles and other prominent question text in lists.
+  static TextStyle title(double size) => TextStyle(
+        fontFamily: displayFont,
+        fontSize: size,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        letterSpacing: -size * 0.01,
+        color: AppColors.ink,
+      );
+
   static TextStyle body([double size = 15]) => TextStyle(
+        fontFamily: textFont,
         fontSize: size,
         height: 1.4,
         color: AppColors.ink,
@@ -71,9 +91,29 @@ class AppTheme {
       onSurface: AppColors.ink,
     );
 
-    return ThemeData(
+    final base = ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      fontFamily: textFont,
+    );
+
+    // Inter everywhere by default; Outfit for the larger title styles that
+    // Material widgets (dialogs, app bars) pick up.
+    TextStyle? outfit(TextStyle? style) =>
+        style?.copyWith(fontFamily: displayFont);
+    final t = base.textTheme;
+    final textTheme = t.copyWith(
+      displayLarge: outfit(t.displayLarge),
+      displayMedium: outfit(t.displayMedium),
+      displaySmall: outfit(t.displaySmall),
+      headlineLarge: outfit(t.headlineLarge),
+      headlineMedium: outfit(t.headlineMedium),
+      headlineSmall: outfit(t.headlineSmall),
+      titleLarge: outfit(t.titleLarge),
+    );
+
+    return base.copyWith(
+      textTheme: textTheme,
       scaffoldBackgroundColor: AppColors.cream,
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,

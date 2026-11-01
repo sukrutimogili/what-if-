@@ -19,7 +19,14 @@ class SplashScreen extends StatelessWidget {
               kind: DecorKind.flower,
               color: AppColors.yellow,
               size: 110,
-              child: Text('?', style: TextStyle(fontSize: 44, fontWeight: FontWeight.w800)),
+              child: Text(
+                '?',
+                style: TextStyle(
+                  fontFamily: AppTheme.displayFont,
+                  fontSize: 44,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             Text('What If?', style: AppTheme.display(32)),
@@ -55,7 +62,7 @@ class StartupErrorScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: EmptyState(
-          icon: Icons.error_outline,
+          icon: Icons.error_outline_rounded,
           color: AppColors.coral,
           title: 'The prompts would not load',
           message: 'Check that ${PromptRepository.assetPath} exists and is '

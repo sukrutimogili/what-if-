@@ -108,7 +108,8 @@ class _SurpriseScreenState extends State<SurpriseScreen> {
                       ),
                       for (final c in state.repo.categories)
                         FilterPill(
-                          label: '${c.icon} ${c.name}',
+                          label: c.name,
+                          categoryId: c.id,
                           selected: _categoryId == c.id,
                           onTap: () => _setCategory(c.id),
                         ),
@@ -159,8 +160,8 @@ class _SurpriseScreenState extends State<SurpriseScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   TagChip(
-                                    label: '${category?.icon ?? '✨'}  '
-                                        '${category?.name ?? 'Prompt'}',
+                                    label: category?.name ?? 'Prompt',
+                                    categoryId: prompt.categoryId,
                                   ),
                                   const SizedBox(height: 22),
                                   AnimatedSwitcher(

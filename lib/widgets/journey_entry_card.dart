@@ -5,6 +5,7 @@ import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../utils/navigation.dart';
+import 'category_icon.dart';
 import 'common.dart';
 
 /// A saved response in My Journey. Tap to edit, menu to delete.
@@ -52,10 +53,7 @@ class JourneyEntryCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(18, 6, 6, 6),
               child: Row(
                 children: [
-                  Text(
-                    category?.icon ?? '✨',
-                    style: const TextStyle(fontSize: 18),
-                  ),
+                  CategoryIcon(categoryId: entry.categoryId, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -71,7 +69,7 @@ class JourneyEntryCard extends StatelessWidget {
                   ),
                   PopupMenuButton<String>(
                     tooltip: 'More options',
-                    icon: const Icon(Icons.more_horiz),
+                    icon: const Icon(Icons.more_horiz_rounded),
                     onSelected: (value) {
                       if (value == 'edit') {
                         openCreate(context, entry.toPrompt(), entry: entry);
@@ -94,8 +92,8 @@ class JourneyEntryCard extends StatelessWidget {
                 children: [
                   Text(
                     entry.promptText,
-                    style: AppTheme.body(16).copyWith(
-                      fontWeight: FontWeight.w800,
+                    style: AppTheme.title(16.5).copyWith(
+                      fontWeight: FontWeight.w700,
                       height: 1.25,
                     ),
                   ),

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../models/prompt.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
+import '../utils/prompt_batcher.dart';
 import '../utils/responsive.dart';
+import '../widgets/batch_controls.dart';
 import '../widgets/category_tile.dart';
 import '../widgets/common.dart';
 import '../widgets/prompt_tile.dart';
@@ -18,7 +20,35 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   final TextEditingController _controller = TextEditingController();
+  final GlobalKey _listTop = GlobalKey();
   String _query = '';
+
+  /// Search matches dealt out 10 at a time; null while not searching.
+  PromptBatcher? _batcher;
+
+  void _setQuery(String value) {
+    final repo = AppScope.of(context).repo;
+    setState(() {
+      _query = value;
+      _batcher = value.trim().length >= 2
+          ? PromptBatcher(repo.search(value))
+          : null;
+    });
+  }
+
+  void _afterBatchChange() {
+    setState(() {});
+    // The new batch replaces the old one, so bring its top into view.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _listTop.currentContext;
+      if (target == null) return;
+      Scrollable.ensureVisible(
+        target,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
 
   @override
   void dispose() {
@@ -26,13 +56,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.dispose();
   }
 
+  String _summary(PromptBatcher b) {
+    final matches = b.total >= 60
+        ? 'the first 60 matches'
+        : '${b.total} ${b.total == 1 ? 'match' : 'matches'}';
+    if (b.total <= b.batchSize) return matches;
+    return 'Showing ${b.rangeStart}\u2013${b.rangeEnd} of $matches';
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
     final categories = state.repo.categories;
-    final searching = _query.trim().length >= 2;
+    final batcher = _batcher;
     final List<WhatIfPrompt> results =
-        searching ? state.repo.search(_query) : const <WhatIfPrompt>[];
+        batcher?.current ?? const <WhatIfPrompt>[];
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -61,7 +99,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   constraints: const BoxConstraints(maxWidth: 560),
                   child: TextField(
                     controller: _controller,
-                    onChanged: (value) => setState(() => _query = value),
+                    onChanged: _setQuery,
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
                       hintText: 'Search ${state.repo.prompts.length} prompts',
@@ -75,7 +113,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                               icon: const Icon(Icons.close_rounded),
                               onPressed: () {
                                 _controller.clear();
-                                setState(() => _query = '');
+                                _setQuery('');
                               },
                             ),
                       contentPadding: const EdgeInsets.symmetric(
@@ -91,7 +129,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               ),
             ),
-            if (!searching)
+            if (batcher == null)
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(side, 0, side, 32),
                 sliver: SliverGrid(
@@ -108,7 +146,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   ),
                 ),
               )
-            else if (results.isEmpty)
+            else if (batcher.total == 0)
               const SliverFillRemaining(
                 hasScrollBody: false,
                 child: EmptyState(
@@ -122,12 +160,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
             else ...[
               SliverToBoxAdapter(
                 child: Padding(
+                  key: _listTop,
                   padding: EdgeInsets.fromLTRB(side, 0, side, 14),
                   child: Text(
-                    results.length >= 60
-                        ? 'Showing the first 60 matches'
-                        : '${results.length} '
-                            '${results.length == 1 ? 'match' : 'matches'}',
+                    _summary(batcher),
                     style: AppTheme.body(14).copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -135,11 +171,30 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               ),
               SliverPadding(
-                padding: EdgeInsets.fromLTRB(side, 0, side, 32),
+                padding: EdgeInsets.fromLTRB(side, 0, side, 16),
                 sliver: RowGridSliver(
                   count: results.length,
                   columns: columns,
                   itemBuilder: (context, i) => PromptTile(prompt: results[i]),
+                ),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(side, 0, side, 40),
+                sliver: SliverToBoxAdapter(
+                  child: BatchControls(
+                    batcher: batcher,
+                    onNext: () {
+                      batcher.next();
+                      _afterBatchChange();
+                    },
+                    onRestart: () {
+                      batcher.restart();
+                      _afterBatchChange();
+                    },
+                    finishedMessage: 'That is every match for this search.',
+                    restartLabel: 'Back to the first 10',
+                    restartIcon: Icons.replay_rounded,
+                  ),
                 ),
               ),
             ],

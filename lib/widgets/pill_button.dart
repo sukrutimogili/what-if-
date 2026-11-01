@@ -46,7 +46,11 @@ class PillButton extends StatelessWidget {
               ? const BorderSide(color: AppColors.ink, width: 1.5)
               : BorderSide.none,
         ),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        textStyle: const TextStyle(
+          fontFamily: AppTheme.displayFont,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

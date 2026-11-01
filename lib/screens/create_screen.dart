@@ -153,8 +153,8 @@ class _CreateScreenState extends State<CreateScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TagChip(
-                            label: '${category?.icon ?? '✨'}  '
-                                '${category?.name ?? 'Prompt'}',
+                            label: category?.name ?? 'Prompt',
+                            categoryId: _prompt.categoryId,
                           ),
                           const SizedBox(height: 18),
                           Text(_prompt.text, style: AppTheme.display(26)),

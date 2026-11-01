@@ -4,23 +4,52 @@ import '../models/prompt.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/navigation.dart';
+import '../utils/prompt_batcher.dart';
 import '../utils/responsive.dart';
+import '../widgets/batch_controls.dart';
+import '../widgets/category_icon.dart';
 import '../widgets/common.dart';
 import '../widgets/decor.dart';
 import '../widgets/pill_button.dart';
 import '../widgets/prompt_tile.dart';
 
-/// All prompts in one category.
-class CategoryScreen extends StatelessWidget {
+/// Prompts in one category, shown 10 at a time in a shuffled order so each
+/// visit is a fresh browsing session without repeats.
+class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key, required this.category});
 
   final PromptCategory category;
 
   @override
+  State<CategoryScreen> createState() => _CategoryScreenState();
+}
+
+class _CategoryScreenState extends State<CategoryScreen> {
+  final GlobalKey _listTop = GlobalKey();
+  PromptBatcher? _batcher;
+
+  void _afterBatchChange() {
+    setState(() {});
+    // The new batch replaces the old one, so bring its top into view.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _listTop.currentContext;
+      if (target == null) return;
+      Scrollable.ensureVisible(
+        target,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final category = widget.category;
     final state = AppScope.of(context);
     final color = AppTheme.categoryColor(category.id);
     final prompts = state.repo.byCategory(category.id);
+    final batcher = _batcher ??= PromptBatcher(prompts, shuffle: true);
+    final batch = batcher.current;
 
     return Scaffold(
       body: SafeArea(
@@ -65,9 +94,9 @@ class CategoryScreen extends StatelessWidget {
                                       Navigator.of(context).maybePop(),
                                 ),
                                 const SizedBox(height: 20),
-                                Text(
-                                  category.icon,
-                                  style: const TextStyle(fontSize: 38),
+                                CategoryIcon(
+                                  categoryId: category.id,
+                                  size: 40,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -123,15 +152,52 @@ class CategoryScreen extends StatelessWidget {
                     ),
                   )
                 else
-                  SliverPadding(
-                    padding: EdgeInsets.fromLTRB(side, 4, side, 32),
-                    sliver: RowGridSliver(
-                      count: prompts.length,
-                      columns: columns,
-                      itemBuilder: (context, i) =>
-                          PromptTile(prompt: prompts[i]),
+                  ...[
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        key: _listTop,
+                        padding: EdgeInsets.fromLTRB(side, 4, side, 14),
+                        child: Text(
+                          batcher.total <= batcher.batchSize
+                              ? '${batcher.total} prompts'
+                              : 'Showing ${batcher.rangeStart}\u2013'
+                                  '${batcher.rangeEnd} of ${batcher.total}',
+                          style: AppTheme.body(14).copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(side, 0, side, 16),
+                      sliver: RowGridSliver(
+                        count: batch.length,
+                        columns: columns,
+                        itemBuilder: (context, i) =>
+                            PromptTile(prompt: batch[i]),
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(side, 0, side, 40),
+                      sliver: SliverToBoxAdapter(
+                        child: BatchControls(
+                          batcher: batcher,
+                          onNext: () {
+                            batcher.next();
+                            _afterBatchChange();
+                          },
+                          onRestart: () {
+                            batcher.restart();
+                            _afterBatchChange();
+                          },
+                          finishedMessage:
+                              'You have seen all ${batcher.total} prompts '
+                              'in ${category.name}.',
+                          restartLabel: 'Shuffle and start again',
+                        ),
+                      ),
+                    ),
+                  ],
               ],
             );
           },

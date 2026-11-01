@@ -4,9 +4,10 @@ import '../models/prompt.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/navigation.dart';
+import 'category_icon.dart';
 
-/// A prompt in a list: emoji badge, text, bookmark toggle and a check mark
-/// when the user has already written a response.
+/// A prompt in a list: category icon badge, text, bookmark toggle and a
+/// check mark when the user has already written a response.
 class PromptTile extends StatelessWidget {
   const PromptTile({super.key, required this.prompt});
 
@@ -15,7 +16,6 @@ class PromptTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
-    final category = state.repo.categoryById(prompt.categoryId);
     final color = AppTheme.categoryColor(prompt.categoryId);
     final saved = state.isSaved(prompt.id);
     final done = state.hasResponseFor(prompt.id);
@@ -37,10 +37,7 @@ class PromptTile extends StatelessWidget {
                 height: 42,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                child: Text(
-                  category?.icon ?? '✨',
-                  style: const TextStyle(fontSize: 20),
-                ),
+                child: CategoryIcon(categoryId: prompt.categoryId, size: 22),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -48,10 +45,7 @@ class PromptTile extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
                     prompt.text,
-                    style: AppTheme.body(16).copyWith(
-                      fontWeight: FontWeight.w600,
-                      height: 1.3,
-                    ),
+                    style: AppTheme.title(16.5),
                   ),
                 ),
               ),

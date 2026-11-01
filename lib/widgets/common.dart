@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import 'category_icon.dart';
 import 'decor.dart';
 import 'pill_button.dart';
 
@@ -122,11 +123,15 @@ class FilterPill extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.categoryId,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
+
+  /// When set, a matching category icon is shown before the label.
+  final String? categoryId;
 
   @override
   Widget build(BuildContext context) {
@@ -138,13 +143,26 @@ class FilterPill extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-              color: selected ? AppColors.cream : AppColors.ink,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (categoryId != null) ...[
+                CategoryIcon(
+                  categoryId: categoryId,
+                  size: 18,
+                  color: selected ? AppColors.cream : AppColors.ink,
+                ),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: selected ? AppColors.cream : AppColors.ink,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -233,7 +251,7 @@ class MessageBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, size: 22),
+          const Icon(Icons.info_outline_rounded, size: 22),
           const SizedBox(width: 12),
           Expanded(child: Text(message, style: AppTheme.body(14))),
         ],
@@ -244,9 +262,12 @@ class MessageBanner extends StatelessWidget {
 
 /// Small ink-coloured label on cards.
 class TagChip extends StatelessWidget {
-  const TagChip({super.key, required this.label});
+  const TagChip({super.key, required this.label, this.categoryId});
 
   final String label;
+
+  /// When set, a matching category icon is shown before the label.
+  final String? categoryId;
 
   @override
   Widget build(BuildContext context) {
@@ -256,13 +277,28 @@ class TagChip extends StatelessWidget {
         color: AppColors.ink,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.cream,
-          fontWeight: FontWeight.w700,
-          fontSize: 12.5,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (categoryId != null) ...[
+            CategoryIcon(
+              categoryId: categoryId,
+              size: 15,
+              color: AppColors.cream,
+            ),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.cream,
+                fontWeight: FontWeight.w700,
+                fontSize: 12.5,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

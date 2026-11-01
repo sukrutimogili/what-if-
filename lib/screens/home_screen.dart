@@ -113,6 +113,7 @@ class HomeScreen extends StatelessWidget {
                             child: Text(
                               '?',
                               style: TextStyle(
+                                fontFamily: AppTheme.displayFont,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 16,
                               ),
@@ -122,6 +123,7 @@ class HomeScreen extends StatelessWidget {
                           Text(
                             'What If?',
                             style: TextStyle(
+                              fontFamily: AppTheme.displayFont,
                               fontWeight: FontWeight.w800,
                               fontSize: 18,
                             ),

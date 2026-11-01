@@ -4,6 +4,7 @@ import '../models/prompt.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/navigation.dart';
+import 'category_icon.dart';
 import 'decor.dart';
 
 /// Coloured category card. Needs a bounded height (fixed by its parent).
@@ -52,13 +53,13 @@ class CategoryTile extends StatelessWidget {
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
-                          child: Text(
-                            category.icon,
-                            style: const TextStyle(fontSize: 24),
+                          child: CategoryIcon(
+                            categoryId: category.id,
+                            size: 26,
                           ),
                         ),
                         const Spacer(),
-                        const Icon(Icons.arrow_forward, size: 22),
+                        const Icon(Icons.arrow_forward_rounded, size: 22),
                       ],
                     ),
                     const Spacer(),

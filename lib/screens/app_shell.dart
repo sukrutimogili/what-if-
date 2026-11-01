@@ -270,6 +270,7 @@ class _Brand extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
+              fontFamily: AppTheme.displayFont,
               color: AppColors.cream,
               fontSize: 22,
               fontWeight: FontWeight.w800,

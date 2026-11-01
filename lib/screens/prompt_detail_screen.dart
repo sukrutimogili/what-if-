@@ -57,8 +57,8 @@ class PromptDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 28),
                           TagChip(
-                            label: '${category?.icon ?? '✨'}  '
-                                '${category?.name ?? 'Prompt'}',
+                            label: category?.name ?? 'Prompt',
+                            categoryId: prompt.categoryId,
                           ),
                           const SizedBox(height: 20),
                           Text(
